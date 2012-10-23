@@ -1,6 +1,8 @@
 var util = require('util');
 var express = require('express');
-var app = express.createServer();
+var app = express();
+var http = require('http');
+var server = http.createServer(app);
 
 var sio = require('socket.io')
     , RedisStore = sio.RedisStore
@@ -34,5 +36,5 @@ app.post('/showcontrol', function (req, res) {
   res.end();
 });
 
-app.listen(80);
-util.log('Listening on ', app.address());
+server.listen(9999);
+util.log('Listening');
