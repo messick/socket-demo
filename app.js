@@ -1,14 +1,12 @@
-var util = require('util');
-var express = require('express');
-var app = express();
-var http = require('http');
-var server = http.createServer(app);
-
-var sio = require('socket.io')
-    , RedisStore = sio.RedisStore
-    , io = sio.listen(app);
-
-var opts = {redisSub:{host:'localhost', port:6379},redisPub:{host:'localhost', port:6379},redisClient:{host:'localhost', port:6379}}
+var util = require('util')
+  , express = require('express')
+  , app = express()
+  , http = require('http')
+  , server = http.createServer(app)
+  , sio = require('socket.io')
+  , RedisStore = sio.RedisStore
+  , io = sio.listen(server)
+  , opts = {redisSub:{host:'localhost', port:6379},redisPub:{host:'localhost', port:6379},redisClient:{host:'localhost', port:6379}}
 
 io.set('store', new RedisStore(opts));
 io.enable('browser client minification');  // send minified client
