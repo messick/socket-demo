@@ -14,23 +14,40 @@ io.enable('browser client etag');          // apply etag caching logic based on 
 io.enable('browser client gzip');          // gzip the file
 io.set('log level', 1);
 io.sockets.on('connection', function(socket) {
-  util.log('ShowControl -- Socket connected: ' + socket.id);
+  util.log('Socket connected: ' + socket.id);
 
-  socket.on('channel', function(ch) {
-    socket.join(ch)
-    util.log('ShowControl -- ' + socket.id + ' joined channel: ' + ch);
-  });
-
+  socket.on('subscribe', function(data) { 
+    var message = socket.id + ' joined: ' + data.room;
+    socket.join(data.room);
+    io.sockets.in(data.room).emit('message_sent', message);
+    util.log(message);
+  })
+  
+  socket.on('unsubscribe', function(data) {
+    var message = socket.id + ' left: ' + data.room;
+    io.sockets.in(data.room).emit('message_sent', message);
+    socket.leave(data.room); 
+    util.log(message);
+  })
+  
   socket.on('disconnect', function() {
-    util.log('ShowControl -- Socket disconnected: ' + socket.id);
+    util.log('Socket disconnected: ' + socket.id);
   });
 });
 
 app.use(express.bodyParser());
-app.post('/showcontrol', function (req, res) {
-  util.log('ShowControl -- Sending message to: ' + req.body.channel);
+app.set('views', __dirname + '/views');
+app.engine('html', require('ejs').renderFile);
 
-  io.sockets.in(req.body.channel).emit('show_event', JSON.stringify(req.body.message));
+app.get('/', function (req, res)
+{
+    res.render('index.html');
+});
+
+app.post('/say', function (req, res) {
+  util.log('Sending message to: ' + req.body.room);
+
+  io.sockets.in(req.body.room).emit('message_sent', JSON.stringify(req.body.message));
   res.end();
 });
 
