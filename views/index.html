@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <title>Socket.io Demo</title>
+    <script src="http://127.0.0.1:9999/socket.io/socket.io.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
+    <script>
+      
+    </script>
+    <script>
+    $(function() {
+      var socket = io.connect('127.0.0.1:9999');
+      window.current_room = "none";
+
+      socket.on('connect', function (msg) {
+        console.log('in');
+        $('#socket_id').html("Your Socket ID is: " + socket.socket.sessionid);
+      });
+
+      socket.on('message_sent', function (msg) {
+        $("body").append('<br/>' + msg);
+      });
+
+        $("#join_room")
+            .button()
+            .click(function( event ) {
+              $("#say").button({ disabled: false });
+              socket.emit('unsubscribe', { room: window.current_room });
+              window.current_room = $('#room_select').val();
+              socket.emit('subscribe', { room: window.current_room });
+              event.preventDefault();
+            });
+        $("#say")
+            .button({ disabled: true })
+            .click(function( event ) {
+              $.post("/say", { room: window.current_room, message: $('#message').val() });
+              event.preventDefault();
+            });
+    });
+    </script>
+  </head>
+  <body>
+    <h1 id="socket_id"></h1>
+    <select id="room_select">
+      <option value="room1">Room 1</option>
+      <option value="room2">Room 2</option>
+      <option value="room3">Room 3</option>
+    </select>
+    <button id="join_room">Join Room</button>
+    
+    <p></p>
+
+    <input type="text" id="message" size="30">
+    <button id="say">Say</button>
+
+  </body>
+</html>
